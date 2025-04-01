@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { fetchAllTask } from "../../services/indexedDBUtils";
 import { TaskI } from "../../interface/TaskI";
+import { showLoadingAlert, showSuccessAlert, showErrorAlert } from "../../helpers/alerts";
+import MySwal from 'sweetalert2';
 
 import "./GetAllTask.module.scss";
 
@@ -8,12 +10,20 @@ export function GetAllTask() {
   const [objTask, setObjTask] = useState<TaskI[]>([]);
 
   useEffect(() => {
+    showLoadingAlert();
+
     fetchAllTask()
       .then((fetchedTasks: TaskI[]) => {
-        setObjTask(fetchedTasks);
+        setTimeout(() => {
+          MySwal.hideLoading();
+          showSuccessAlert(); // Показываем успешное сообщение
+          setObjTask(fetchedTasks); // Обновляем состояние задач
+        }, 2000);
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         console.error("Ошибка при получении задач:", error);
+        MySwal.hideLoading(); // Скрываем индикатор загрузки
+        showErrorAlert("Не удалось получить задачи."); // Показываем сообщение об ошибке
       });
   }, []);
 
