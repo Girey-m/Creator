@@ -63,3 +63,28 @@ export function fetchAllTask(): Promise<TaskI[]> {
       .catch(reject);
   });
 }
+
+export async function updateTask(updatedTask: TaskI): Promise<void> {
+  openDB();
+  try {
+    const db = await openDB();
+
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+
+    await new Promise<void>((resolve, reject) => {
+      const request = store.put(updatedTask);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject("Ошибка при обновления задачи");
+    });
+
+    await new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject("Ошибка при выполнении транзакции");
+    });
+  } catch (error) {
+    console.error("Ошибка при обновлении задачи", error);
+    throw new Error("Не удалось выполнить задачу");
+  }
+}

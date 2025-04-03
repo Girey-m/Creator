@@ -10,10 +10,8 @@ export function CreateTaskBtn({
 }) {
   const btnRef = useRef<HTMLButtonElement | null>(null);
   return (
-    <>
-      <button type="button" ref={btnRef} onClick={() => createTask(taskName)}>
-        Создать задачу
-      </button>
-    </>
+    <button type="button" ref={btnRef} onClick={() => createTask(taskName)}>
+      Создать задачу
+    </button>
   );
 }

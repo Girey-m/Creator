@@ -38,7 +38,7 @@ export function CreateTask() {
         id="task-title"
         placeholder="Почистить зубы..."
         ref={inputRef}
-        value={inputValue} // Двусторонняя привязка
+        value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
       />
 
