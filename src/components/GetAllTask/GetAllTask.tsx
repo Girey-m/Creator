@@ -8,6 +8,7 @@ import { EditTaskBtn } from "../EditTaskBtn/EditTaskBtn";
 import { CallModalWindow } from "../CallModalWindow/CallModalWindow";
 import { RemoveTaskBtn } from "../RemoveTaskBtn/RemoveTaskBtn";
 import { CreateTask } from "../CreateTask/CreateTask";
+import { GivePureTask } from "../GivePureTask/GivePureTask";
 import {
   showLoadingAlert,
   showSuccessAlert,
@@ -119,6 +120,7 @@ export function GetAllTask() {
           onSave={saveChanges}
         />
       </div>
+      <GivePureTask onTaskAdded={refreshTasks} />
     </>
   );
 }
