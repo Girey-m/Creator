@@ -26,7 +26,7 @@ export function CallModalWindow({
   };
 
   return createPortal(
-    <div className={styles.modal}>
+    <div className={styles["modal"]}>
       <input
         type="text"
         className={styles["modal__input-title"]}
@@ -35,10 +35,10 @@ export function CallModalWindow({
         placeholder="Введите новое значение"
       />
       <button className={styles["modal__save-btn"]} onClick={handleSave}>
-        Сохрвнить
+        Сохранить
       </button>
       <button className={styles["modal__close-btn"]} onClick={handleClose}>
-        Закпыть
+        Закрыть
       </button>
     </div>,
     document.body

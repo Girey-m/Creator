@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
-import { fetchAllTask, updateTask } from "../../services/indexedDBUtils";
+import {
+  fetchAllTask,
+  updateTask,
+  removeTask,
+} from "../../services/indexedDBUtils";
 import { EditTaskBtn } from "../EditTaskBtn/EditTaskBtn";
 import { CallModalWindow } from "../CallModalWindow/CallModalWindow";
-
-import { TaskI } from "../../interface/TaskI";
-
+import { RemoveTaskBtn } from "../RemoveTaskBtn/RemoveTaskBtn";
+import { CreateTask } from "../CreateTask/CreateTask";
 import {
   showLoadingAlert,
   showSuccessAlert,
   showErrorAlert,
 } from "../../helpers/alerts";
 import MySwal from "sweetalert2";
-
+import { TaskI } from "../../interface/TaskI";
 import styles from "./GetAllTask.module.scss";
 
 export function GetAllTask() {
@@ -19,7 +22,17 @@ export function GetAllTask() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
 
+  const refreshTasks = async () => {
+    try {
+      const fetchedTasks = await fetchAllTask();
+      setObjTask(fetchedTasks);
+    } catch (error) {
+      console.error("Ошибка при обновлении задач:", error);
+    }
+  };
+
   useEffect(() => {
+    refreshTasks();
     showLoadingAlert();
 
     fetchAllTask()
@@ -28,6 +41,7 @@ export function GetAllTask() {
           MySwal.hideLoading();
           showSuccessAlert(); // Показываем успешное сообщение
           setObjTask(fetchedTasks); // Обновляем состояние задач
+          console.log(objTask);
         }, 2000);
       })
       .catch((error: Error) => {
@@ -53,13 +67,9 @@ export function GetAllTask() {
     const updatedTask = objTask.find((task) => task.id === editingTaskId);
     if (!updatedTask) return;
 
-    updateTask({ ...updatedTask, title: newTitle }) // Обновляем задачу в базе данных
+    updateTask({ ...updatedTask, title: newTitle })
       .then(() => {
-        setObjTask((prevTasks) =>
-          prevTasks.map((task) =>
-            task.id === editingTaskId ? { ...task, title: newTitle } : task
-          )
-        );
+        refreshTasks();
         closeModal();
         showSuccessAlert();
       })
@@ -70,41 +80,42 @@ export function GetAllTask() {
   };
 
   return (
-    <div className={styles.tasks}>
-      <h2 className={styles["tasks__tile"]}>Список задач:</h2>
-      {objTask.length > 0 ? (
-        <ul className={styles["tasks__list"]}>
-          {objTask.map((task) => (
-            <li
-              key={task.id}
-              id={`task-${task.id}`}
-              className={styles["tasks__list-item"]}
-            >
-              <strong className={styles["tasks__list-title"]}>
-                {task.title}
-              </strong>
-              <EditTaskBtn callModalWindow={() => openModal(task.id)} />
-              {/* <input
-                type="text"
-                className="visually-hidden"
-                id={`task-${task.title}`}
-                value={task.title}
-                readOnly
-              /> */}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Нет задач</p>
-      )}
-      <CallModalWindow
-        isVisible={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        initialValue={
-          objTask.find((task) => task.id === editingTaskId)?.title || ""
-        }
-        onSave={(newTitle: string) => saveChanges(newTitle)}
-      />
-    </div>
+    <>
+      <CreateTask onTaskAdded={refreshTasks} />
+      <div className={styles.tasks}>
+        <h2 className={styles["tasks__tile"]}>Список задач:</h2>
+        {objTask.length > 0 ? (
+          <ul className={styles["tasks__list"]}>
+            {objTask.map((task) => (
+              <li
+                key={task.id}
+                id={`task-${task.id}`}
+                className={styles["tasks__list-item"]}
+              >
+                <strong className={styles["tasks__list-title"]}>
+                  {task.title}
+                </strong>
+                <EditTaskBtn callModalWindow={() => openModal(task.id)} />
+                <RemoveTaskBtn
+                  removeTaskInDb={() =>
+                    removeTask(task.id).then(() => refreshTasks())
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Нет задач</p>
+        )}
+        <CallModalWindow
+          isVisible={isModalOpen}
+          onClose={closeModal}
+          initialValue={
+            objTask.find((task) => task.id === editingTaskId)?.title || ""
+          }
+          onSave={saveChanges}
+        />
+      </div>
+    </>
   );
 }

@@ -2,18 +2,20 @@ import { useRef, useState, useEffect } from "react";
 import { CreateTaskBtn } from "../CreateTaskBtn/CreateTaskBtn";
 import { addTask, fetchAllTask } from "../../services/indexedDBUtils";
 import { TaskI } from "../../interface/TaskI";
+import { CreateTaskPropsI } from "../../interface/CreateTaskPropsI";
 
 import "./CreateTask.module.scss";
 
-export function CreateTask() {
+export function CreateTask({ onTaskAdded }: CreateTaskPropsI) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [inputValue, setInputValue] = useState("");
 
   const handleCreateTask = async () => {
     try {
       if (inputValue.trim()) {
-        await addTask({ title: inputValue }); // Используем состояние inputValue
-        console.log("Задача успешно добавлена:", inputValue); // Логируем inputValue
+        await addTask({ title: inputValue });
+        onTaskAdded();
+        console.log("Задача успешно добавлена:", inputValue);
       } else {
         console.warn("Название задачи не может быть пустым");
       }

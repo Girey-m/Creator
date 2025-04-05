@@ -4,7 +4,7 @@ import styles from "./EditTaskBtn.module.scss";
 export function EditTaskBtn({
   callModalWindow,
 }: {
-  callModalWindow?: () => void;
+  callModalWindow: () => void;
 }) {
   const btnRef = useRef<HTMLButtonElement | null>(null);
 
@@ -13,7 +13,7 @@ export function EditTaskBtn({
       type="button"
       className={styles.EditTaskBtn}
       ref={btnRef}
-      onClick={() => callModalWindow?.()}
+      onClick={() => callModalWindow()}
       disabled={!callModalWindow}
     >
       Редактировать
