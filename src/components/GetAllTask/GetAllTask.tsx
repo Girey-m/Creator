@@ -61,13 +61,13 @@ export function GetAllTask() {
     setEditingTaskId(null);
   };
 
-  const saveChanges = (newTitle: string) => {
+  const saveChanges = (newTitle: string, newDescription: string) => {
     if (editingTaskId === null) return;
 
     const updatedTask = objTask.find((task) => task.id === editingTaskId);
     if (!updatedTask) return;
 
-    updateTask({ ...updatedTask, title: newTitle })
+    updateTask({ ...updatedTask, title: newTitle, description: newDescription })
       .then(() => {
         refreshTasks();
         closeModal();
@@ -95,6 +95,9 @@ export function GetAllTask() {
                 <strong className={styles["tasks__list-title"]}>
                   {task.title}
                 </strong>
+                <p className={styles["tasks__list-description"]}>
+                  {task.description}
+                </p>
                 <EditTaskBtn callModalWindow={() => openModal(task.id)} />
                 <RemoveTaskBtn
                   removeTaskInDb={() =>

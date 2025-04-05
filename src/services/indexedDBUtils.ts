@@ -29,7 +29,10 @@ export function openDB(): Promise<IDBDatabase> {
   });
 }
 
-export function addTask(task: { title: string }): Promise<number> {
+export function addTask(task: {
+  title: string;
+  description: string;
+}): Promise<number> {
   return new Promise((resolve, reject) => {
     openDB()
       .then((db) => {

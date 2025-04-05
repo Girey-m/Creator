@@ -1,21 +1,25 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { CreateTaskBtn } from "../CreateTaskBtn/CreateTaskBtn";
-import { addTask, fetchAllTask } from "../../services/indexedDBUtils";
-import { TaskI } from "../../interface/TaskI";
+import { addTask } from "../../services/indexedDBUtils";
 import { CreateTaskPropsI } from "../../interface/CreateTaskPropsI";
 
-import "./CreateTask.module.scss";
+import styles from "./CreateTask.module.scss";
 
 export function CreateTask({ onTaskAdded }: CreateTaskPropsI) {
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const [inputValue, setInputValue] = useState("");
+  const inputTitleRef = useRef<HTMLInputElement | null>(null);
+  const inputDescriptionRef = useRef<HTMLInputElement | null>(null);
+  const [inputValueTitle, setInputValueTitle] = useState("");
+  const [inputValueDescription, setInputValueDescription] = useState("");
 
   const handleCreateTask = async () => {
     try {
-      if (inputValue.trim()) {
-        await addTask({ title: inputValue });
+      if (inputValueTitle.trim()) {
+        await addTask({
+          title: inputValueTitle,
+          description: inputValueDescription,
+        });
         onTaskAdded();
-        console.log("Задача успешно добавлена:", inputValue);
+        console.log("Задача успешно добавлена:", inputValueTitle);
       } else {
         console.warn("Название задачи не может быть пустым");
       }
@@ -24,27 +28,41 @@ export function CreateTask({ onTaskAdded }: CreateTaskPropsI) {
     }
   };
 
-  useEffect(() => {
-    fetchAllTask().then((tasks: TaskI[]) => {
-      tasks.forEach((task) => {
-        console.log(task.id, task.title);
-      });
-    });
-  }, []);
-
   return (
     <>
-      <label htmlFor="task-title">Введите название задачи:</label>
+      <label htmlFor="task-title" className={styles["task__titel-label"]}>
+        Введите название задачи:
+      </label>
       <input
         type="text"
         id="task-title"
         placeholder="Почистить зубы..."
-        ref={inputRef}
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        className={styles["task__titel-input"]}
+        ref={inputTitleRef}
+        value={inputValueTitle}
+        onChange={(e) => setInputValueTitle(e.target.value)}
+      />
+      <label
+        htmlFor="task-description"
+        className={styles["task__description-label"]}
+      >
+        Введите название задачи:
+      </label>
+      <input
+        type="text"
+        id="task-description"
+        placeholder="Взять щетку..."
+        className={styles["task__description-input"]}
+        ref={inputDescriptionRef}
+        value={inputValueDescription}
+        onChange={(e) => setInputValueDescription(e.target.value)}
       />
 
-      <CreateTaskBtn taskName={inputValue} createTask={handleCreateTask} />
+      <CreateTaskBtn
+        taskName={inputValueTitle}
+        description={inputValueDescription}
+        createTask={handleCreateTask}
+      />
     </>
   );
 }

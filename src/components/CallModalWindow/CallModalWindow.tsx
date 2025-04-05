@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
-import { CallModalWindowInterface } from "../../interface/CallModalWindowInterface";
+import { CallModalWindowI } from "../../interface/CallModalWindowI";
 
 import styles from "./CallModalWindow.module.scss";
 
@@ -10,19 +10,22 @@ export function CallModalWindow({
   onClose,
   initialValue,
   onSave,
-}: CallModalWindowInterface) {
+}: CallModalWindowI) {
   const [value, setValue] = useState(initialValue);
+  const [description, setDescription] = useState(initialValue);
 
   if (!isVisible) return null;
 
   const handleSave = () => {
-    onSave(value);
+    onSave(value, description);
     setValue("");
+    setDescription("");
   };
 
   const handleClose = () => {
     onClose();
     setValue("");
+    setDescription("");
   };
 
   return createPortal(
@@ -32,6 +35,13 @@ export function CallModalWindow({
         className={styles["modal__input-title"]}
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        placeholder="Введите новое значение"
+      />
+      <input
+        type="text"
+        className={styles["modal__input-description"]}
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
         placeholder="Введите новое значение"
       />
       <button className={styles["modal__save-btn"]} onClick={handleSave}>
