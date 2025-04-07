@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 
 import { CallModalWindowI } from "../../interface/CallModalWindowI";
@@ -11,9 +11,15 @@ export function CallModalWindow({
   initialValue,
   onSave,
 }: CallModalWindowI) {
-  const [value, setValue] = useState(initialValue);
-  const [description, setDescription] = useState(initialValue);
+  const [value, setValue] = useState(initialValue.title);
+  const [description, setDescription] = useState(initialValue.description);
 
+  useEffect(() => {
+    if (isVisible) {
+      setValue(initialValue.title);
+      setDescription(initialValue.description);
+    }
+  }, [initialValue, isVisible]);
   if (!isVisible) return null;
 
   const handleSave = () => {

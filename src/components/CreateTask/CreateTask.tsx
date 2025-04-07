@@ -46,7 +46,7 @@ export function CreateTask({ onTaskAdded }: CreateTaskPropsI) {
         htmlFor="task-description"
         className={styles["task__description-label"]}
       >
-        Введите название задачи:
+        Введите описанние задачи:
       </label>
       <input
         type="text"
