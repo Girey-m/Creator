@@ -4,6 +4,7 @@ import { addTask } from "../../services/indexedDBUtils";
 import { CreateTaskPropsI } from "../../interface/CreateTaskPropsI";
 
 import styles from "./CreateTask.module.scss";
+import { Box, Container, TextField } from '@mui/material';
 
 export function CreateTask({ onTaskAdded }: CreateTaskPropsI) {
   const inputTitleRef = useRef<HTMLInputElement | null>(null);
@@ -30,39 +31,40 @@ export function CreateTask({ onTaskAdded }: CreateTaskPropsI) {
 
   return (
     <>
-      <label htmlFor="task-title" className={styles["task__titel-label"]}>
-        Введите название задачи:
-      </label>
-      <input
-        type="text"
-        id="task-title"
-        placeholder="Почистить зубы..."
-        className={styles["task__titel-input"]}
-        ref={inputTitleRef}
-        value={inputValueTitle}
-        onChange={(e) => setInputValueTitle(e.target.value)}
-      />
-      <label
-        htmlFor="task-description"
-        className={styles["task__description-label"]}
-      >
-        Введите название задачи:
-      </label>
-      <input
-        type="text"
-        id="task-description"
-        placeholder="Взять щетку..."
-        className={styles["task__description-input"]}
-        ref={inputDescriptionRef}
-        value={inputValueDescription}
-        onChange={(e) => setInputValueDescription(e.target.value)}
-      />
+      <Container>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 300, maxWidth: 600 }}>
+          <TextField
+            type="text"
+            id="task-title"
+            label="Введите название задачи:"
+            placeholder="Почистить зубы..."
+            className={styles["task__title-input"]}
+            sx={{ input: { color: "white", border: "2px solid rgb(0, 85, 255)" }, "label": { color: "rgb(255, 255, 255)" } }}
+            ref={inputTitleRef}
+            value={inputValueTitle}
+            onChange={(e) => setInputValueTitle(e.target.value)}
+          />
+          <TextField
+            type="text"
+            id="task-description"
+            label="Введите описание задачи:"
+            placeholder="Взять щетку..."
+            sx={{ input: { color: "white", border: "2px solid rgb(0, 85, 255)" }, "label": { color: "rgb(255, 255, 255)" } }}
+            className={styles["task__title-input"]}
+            ref={inputDescriptionRef}
+            value={inputValueDescription}
+            onChange={(e) => setInputValueDescription(e.target.value)}
+          />
+          <CreateTaskBtn
+            taskName={inputValueTitle}
+            description={inputValueDescription}
+            createTask={handleCreateTask}
+          />
+        </Box>
+      </Container>
 
-      <CreateTaskBtn
-        taskName={inputValueTitle}
-        description={inputValueDescription}
-        createTask={handleCreateTask}
-      />
+
+
     </>
   );
 }

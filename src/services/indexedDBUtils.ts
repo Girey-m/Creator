@@ -115,3 +115,33 @@ export async function removeTask(currenTask: number): Promise<void> {
     throw new Error("Не удалось удалить задачу");
   }
 }
+
+// src/services/indexedDBUtils.ts
+
+export async function fetchTaskById(id: number): Promise<TaskI | null> {
+  try {
+    const db = await openDB(); // Открываем базу данных
+
+    // Создаем транзакцию в режиме "readonly" (только чтение)
+    const transaction = db.transaction(STORE_NAME, "readonly");
+    const store = transaction.objectStore(STORE_NAME);
+
+    // Получаем задачу по ID
+    const task = await new Promise<TaskI | null>((resolve, reject) => {
+      const request = store.get(id);
+
+      request.onsuccess = () => {
+        resolve(request.result); // Возвращаем найденную задачу
+      };
+
+      request.onerror = () => {
+        reject("Ошибка при получении задачи");
+      };
+    });
+
+    return task; // Возвращаем задачу (или null, если задача не найдена)
+  } catch (error) {
+    console.error("Ошибка при получении задачи:", error);
+    throw new Error("Не удалось получить задачу");
+  }
+}
