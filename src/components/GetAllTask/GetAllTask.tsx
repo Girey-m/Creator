@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   fetchAllTask,
   updateTask,
@@ -11,6 +12,7 @@ import { CreateTask } from "../CreateTask/CreateTask";
 // import { GivePureTask } from "../GivePureTask/GivePureTask";
 import { TaskI } from "../../interface/TaskI";
 import styles from "./GetAllTask.module.scss";
+import { Box, Container } from "@mui/material";
 
 export function GetAllTask() {
   const [objTask, setObjTask] = useState<TaskI[]>([]);
@@ -65,75 +67,63 @@ export function GetAllTask() {
 
   return (
     <>
-      <CreateTask onTaskAdded={refreshTasks} />
-      <div className={styles.tasks}>
-        <h2 className={styles["tasks__tile"]}>Список задач:</h2>
-        {objTask.length > 0 ? (
-          <ul className={styles["tasks__list"]}>
-            {objTask.map((task, index) => {
-              // Проверяем, попадает ли задача на текущую страницу
-              if (index >= startIndex && index < endIndex) {
-                return (
+      <Container>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            minWidth: 300,
+            maxWidth: 600,
+          }}
+        >
+          <CreateTask onTaskAdded={refreshTasks} />
+          <Box>
+            <h2 className={styles.title}>Список задач:</h2>
+            {objTask.length > 0 ? (
+              <ul className={styles.list}>
+                {objTask.map((task) => (
                   <li
                     key={task.id}
                     id={`task-${task.id}`}
-                    className={styles["tasks__list-item"]}
+                    className={styles.listItem}
                   >
-                    <strong className={styles["tasks__list-title"]}>
-                      {task.title}
-                    </strong>
-                    <p className={styles["tasks__list-description"]}>
-                      {task.description}
-                    </p>
-                    <EditTaskBtn callModalWindow={() => openModal(task.id)} />
-                    <RemoveTaskBtn
-                      removeTaskInDb={() =>
-                        removeTask(task.id).then(() => refreshTasks())
-                      }
-                    />
+                    <Link to={`/task/${task.id}`}>
+                      {" "}
+                      <strong className={styles.listTitle}>{task.title}</strong>
+                      <p className={styles.listDescription}>
+                        {task.description}
+                      </p>
+                    </Link>
+                    <Box sx={{ display: "flex", gap: "5px" }}>
+                      <EditTaskBtn
+                        callModalWindow={() => openModal(task.id)}
+                        iconSize={1.2}
+                      />
+                      <RemoveTaskBtn
+                        removeTaskInDb={() =>
+                          removeTask(task.id).then(() => refreshTasks())
+                        }
+                      />
+                    </Box>
                   </li>
-                );
+                ))}
+              </ul>
+            ) : (
+              <p>Нет задач</p>
+            )}
+            <CallModalWindow
+              isVisible={isModalOpen}
+              onClose={closeModal}
+              initialValue={
+                objTask.find((task) => task.id === editingTaskId)?.title || ""
               }
-              return null; // Не рендерим задачи за пределами текущей страницы
-            })}
-          </ul>
-        ) : (
-          <p>Нет задач</p>
-        )}
-
-        {/* Пагинация */}
-        <div className={styles.pagination}>
-          <button
-            onClick={() => setCurrentPage(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            Назад
-          </button>
-          <span>
-            Страница {currentPage} из {Math.ceil(objTask.length / tasksPerPage)}
-          </span>
-          <button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            disabled={endIndex >= objTask.length}
-          >
-            Вперед
-          </button>
-        </div>
-
-        <CallModalWindow
-          isVisible={isModalOpen}
-          onClose={closeModal}
-          initialValue={{
-            title:
-              objTask.find((task) => task.id === editingTaskId)?.title || "",
-            description:
-              objTask.find((task) => task.id === editingTaskId)?.description ||
-              "",
-          }}
-          onSave={saveChanges}
-        />
-      </div>
-      {/* <GivePureTask onTaskAdded={refreshTasks} /> */}
+              onSave={saveChanges}
+            />
+          </Box>
+          <GivePureTask onTaskAdded={refreshTasks} />
+        </Box>
+      </Container>
     </>
   );
 }
