@@ -13,7 +13,6 @@ export function CallModalWindow({
 }: CallModalWindowI) {
   const [value, setValue] = useState(initialValue.title);
   const [description, setDescription] = useState(initialValue.description);
-
   useEffect(() => {
     if (isVisible) {
       setValue(initialValue.title);

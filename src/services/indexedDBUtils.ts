@@ -145,3 +145,33 @@ export async function fetchTaskById(id: number): Promise<TaskI | null> {
     throw new Error("Не удалось получить задачу");
   }
 }
+
+export async function fetchTaskBySearch(searchValue: string): Promise<TaskI[]> {
+  try {
+    const db = await openDB();
+    const transaction = db.transaction(STORE_NAME);
+    const store = transaction.objectStore(STORE_NAME);
+
+    const tasks = await new Promise<TaskI[]>((resolve, reject) => {
+      const request = store.getAll();
+      request.onsuccess = () => {
+        const result: TaskI[] = request.result;
+        const filtered = result.filter(
+          (task) =>
+            task.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+            task.description.toLowerCase().includes(searchValue.toLowerCase())
+        );
+        resolve(filtered);
+      };
+
+      request.onerror = () => {
+        reject("Ошибка при получении задач");
+      };
+    });
+
+    return tasks;
+  } catch (error) {
+    console.error("Ошибка при получении задач:", error);
+    throw new Error("Не удалось получить задачи");
+  }
+}
