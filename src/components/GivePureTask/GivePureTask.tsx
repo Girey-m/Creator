@@ -33,6 +33,7 @@ export function GivePureTask({ onTaskAdded }: CreateTaskPropsI) {
             <p className={styles["tasks__list-description"]}>
               {task.description}
             </p>
+            <p className={styles["tasks__list-priority"]}>{task.priority}</p>
           </li>
         ))}
       </ul>

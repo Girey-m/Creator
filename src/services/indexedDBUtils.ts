@@ -32,6 +32,7 @@ export function openDB(): Promise<IDBDatabase> {
 export function addTask(task: {
   title: string;
   description: string;
+  priority: string;
 }): Promise<number> {
   return new Promise((resolve, reject) => {
     openDB()
@@ -146,7 +147,10 @@ export async function fetchTaskById(id: number): Promise<TaskI | null> {
   }
 }
 
-export async function fetchTaskBySearch(searchValue: string): Promise<TaskI[]> {
+export async function fetchTaskBySearch(
+  searchValue: string,
+  priorityValue: string
+): Promise<TaskI[]> {
   try {
     const db = await openDB();
     const transaction = db.transaction(STORE_NAME);
@@ -156,11 +160,22 @@ export async function fetchTaskBySearch(searchValue: string): Promise<TaskI[]> {
       const request = store.getAll();
       request.onsuccess = () => {
         const result: TaskI[] = request.result;
-        const filtered = result.filter(
-          (task) =>
-            task.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-            task.description.toLowerCase().includes(searchValue.toLowerCase())
-        );
+        const lowerSearch = searchValue.toLowerCase();
+        const lowerPriority = priorityValue.toLowerCase();
+
+        const filtered = result.filter((task) => {
+          const priorityMatch =
+            priorityValue === "" ||
+            task.priority.toLowerCase() === lowerPriority;
+
+          const searchMatch =
+            searchValue === "" ||
+            task.title.toLowerCase().includes(lowerSearch) ||
+            task.description.toLowerCase().includes(lowerSearch);
+
+          return priorityMatch && searchMatch;
+        });
+
         resolve(filtered);
       };
 

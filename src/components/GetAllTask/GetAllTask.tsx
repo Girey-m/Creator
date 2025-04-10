@@ -28,7 +28,7 @@ export function GetAllTask() {
     try {
       const fetchedTasks = await fetchAllTask();
       setObjTask(fetchedTasks);
-      setCurrentPage(1); // Сбрасываем страницу при обновлении
+      setCurrentPage(1);
     } catch (error) {
       console.error("Ошибка при обновлении задач:", error);
     }
@@ -51,7 +51,11 @@ export function GetAllTask() {
     setEditingTaskId(null);
   };
 
-  const saveChanges = async (newTitle: string, newDescription: string) => {
+  const saveChanges = async (
+    newTitle: string,
+    newDescription: string,
+    newPriority: string
+  ) => {
     if (!editingTaskId) return;
 
     const updatedTask = objTask.find((task) => task.id === editingTaskId);
@@ -62,6 +66,7 @@ export function GetAllTask() {
         ...updatedTask,
         title: newTitle,
         description: newDescription,
+        priority: newPriority,
       });
       await refreshTasks();
       closeModal();
@@ -94,6 +99,7 @@ export function GetAllTask() {
                           <p className={styles.listDescription}>
                             {task.description}
                           </p>
+                          <p className={styles.listPriority}>{task.priority}</p>
                         </Link>
                         <Box sx={{ display: "flex", gap: "5px" }}>
                           <EditTaskBtn
@@ -144,6 +150,8 @@ export function GetAllTask() {
               title: objTask.find((t) => t.id === editingTaskId)?.title || "",
               description:
                 objTask.find((t) => t.id === editingTaskId)?.description || "",
+              priority:
+                objTask.find((t) => t.id === editingTaskId)?.priority || "",
             }}
             onSave={saveChanges}
           />

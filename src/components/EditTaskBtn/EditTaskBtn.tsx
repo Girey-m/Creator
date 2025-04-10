@@ -1,12 +1,14 @@
 import { useRef } from "react";
 import styles from "./EditTaskBtn.module.scss";
-import { Button } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
+import { Button } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 
 export function EditTaskBtn({
-  callModalWindow, iconSize
+  callModalWindow,
+  iconSize,
 }: {
-  callModalWindow: () => void; iconSize: number
+  callModalWindow: () => void;
+  iconSize: number;
 }) {
   const btnRef = useRef<HTMLButtonElement | null>(null);
 
@@ -22,7 +24,6 @@ export function EditTaskBtn({
       sx={{ width: "40px", height: "40px" }}
       startIcon={<EditIcon sx={{ transform: `scale(${iconSize})` }} />}
       aria-label="Редактировать задачу"
-    >
-    </Button>
+    ></Button>
   );
 }
