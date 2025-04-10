@@ -13,9 +13,17 @@ import { CreateTask } from "../CreateTask/CreateTask";
 import { Search } from "../Search/Search";
 
 // import { GivePureTask } from "../GivePureTask/GivePureTask";
-import { TaskI } from "../../interface/TaskI";
+import { Priority, TaskI } from "../../interface/TaskI";
 import styles from "./GetAllTask.module.scss";
-import { Box, Container } from "@mui/material";
+import {
+  Box,
+  Container,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent,
+} from "@mui/material";
 
 export function GetAllTask() {
   const [objTask, setObjTask] = useState<TaskI[]>([]);
@@ -23,10 +31,52 @@ export function GetAllTask() {
   const [tasksPerPage] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const [filter, setFilter] = useState(""); // Фильтр
+  const [sortOrder, setSortOrder] = useState(""); // 'asc' или 'desc'
+
+  // Обработчик изменения фильтра
+  const handleChange = (event: SelectChangeEvent<string>) => {
+    setFilter(event.target.value);
+  };
+
+  // Обработчик изменения сортировки
+  const handleSortOrderChange = (event: SelectChangeEvent<string>) => {
+    setSortOrder(event.target.value);
+  };
+
+  const commonStyles = {
+    color: "white",
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: "rgb(0, 85, 255)",
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: "rgb(0, 85, 255)",
+    },
+    "& .MuiSvgIcon-root": {
+      color: "white",
+    },
+  };
 
   const refreshTasks = async () => {
     try {
       const fetchedTasks = await fetchAllTask();
+
+      // Применим сортировку
+      if (filter === "По алфавиту") {
+        fetchedTasks.sort((a, b) =>
+          sortOrder === "desc"
+            ? b.title.localeCompare(a.title)
+            : a.title.localeCompare(b.title)
+        );
+      } else if (filter === "По приоритету") {
+        const priorityWeight = { Низкий: 1, Средний: 2, Высокий: 3 };
+        fetchedTasks.sort((a, b) =>
+          sortOrder === "desc"
+            ? priorityWeight[b.priority] - priorityWeight[a.priority]
+            : priorityWeight[a.priority] - priorityWeight[b.priority]
+        );
+      }
+
       setObjTask(fetchedTasks);
       setCurrentPage(1);
     } catch (error) {
@@ -34,9 +84,10 @@ export function GetAllTask() {
     }
   };
 
+  // При изменении фильтра или порядка сортировки перезапускаем задачу
   useEffect(() => {
     refreshTasks();
-  }, []);
+  }, [filter, sortOrder]);
 
   const startIndex = (currentPage - 1) * tasksPerPage;
   const endIndex = startIndex + tasksPerPage;
@@ -54,7 +105,7 @@ export function GetAllTask() {
   const saveChanges = async (
     newTitle: string,
     newDescription: string,
-    newPriority: string
+    newPriority: Priority
   ) => {
     if (!editingTaskId) return;
 
@@ -83,7 +134,65 @@ export function GetAllTask() {
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <CreateTask onTaskAdded={refreshTasks} />
         <Box>
-          <h2 className={styles.title}>Список задач:</h2>
+          <Box sx={{ display: "flex", gap: "5px" }}>
+            <h2 className={styles.title}>Список задач:</h2>
+
+            {/* Добавляем фильтр */}
+            <FormControl fullWidth sx={{ ...commonStyles }}>
+              <InputLabel
+                id="filter-label"
+                sx={{ color: "white", "&.Mui-focused": { color: "white" } }}
+              >
+                Фильтр
+              </InputLabel>
+              <Select
+                labelId="filter-label"
+                id="filter-select"
+                value={filter}
+                label="Фильтр"
+                onChange={handleChange}
+                sx={{
+                  ...commonStyles,
+                  "& .MuiSelect-icon": {
+                    color: "white",
+                  },
+                }}
+              >
+                <MenuItem value="">Без фильтра</MenuItem>
+                <MenuItem value="По алфавиту">По алфавиту</MenuItem>
+                <MenuItem value="По приоритету">По приоритету</MenuItem>
+              </Select>
+            </FormControl>
+
+            {/* Сортировка */}
+            {filter && (
+              <FormControl fullWidth sx={{ ...commonStyles }}>
+                <InputLabel
+                  id="sort-order-label"
+                  sx={{ color: "white", "&.Mui-focused": { color: "white" } }}
+                >
+                  Сортировка
+                </InputLabel>
+                <Select
+                  labelId="sort-order-label"
+                  id="sort-order-select"
+                  value={sortOrder}
+                  label="Сортировка"
+                  onChange={handleSortOrderChange}
+                  sx={{
+                    ...commonStyles,
+                    "& .MuiSelect-icon": {
+                      color: "white",
+                    },
+                  }}
+                >
+                  <MenuItem value="asc">По возрастанию</MenuItem>
+                  <MenuItem value="desc">По убыванию</MenuItem>
+                </Select>
+              </FormControl>
+            )}
+          </Box>
+
           {objTask.length > 0 ? (
             <>
               <ul className={styles.list}>
@@ -151,7 +260,8 @@ export function GetAllTask() {
               description:
                 objTask.find((t) => t.id === editingTaskId)?.description || "",
               priority:
-                objTask.find((t) => t.id === editingTaskId)?.priority || "",
+                (objTask.find((t) => t.id === editingTaskId)
+                  ?.priority as Priority) || "",
             }}
             onSave={saveChanges}
           />

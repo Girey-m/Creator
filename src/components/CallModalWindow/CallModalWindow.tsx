@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { Priority } from "../../interface/TaskI";
 
 import { CallModalWindowI } from "../../interface/CallModalWindowI";
 import {
@@ -20,17 +21,23 @@ export function CallModalWindow({
 }: CallModalWindowI) {
   const [value, setValue] = useState(initialValue.title);
   const [description, setDescription] = useState(initialValue.description);
-  const [priority, setPriority] = useState(initialValue.priority);
+  const [priority, setPriority] = useState<Priority | "">(
+    initialValue.priority as Priority
+  );
   useEffect(() => {
     if (isVisible) {
       setValue(initialValue.title);
       setDescription(initialValue.description);
-      setPriority(initialValue.priority);
+      setPriority(initialValue.priority as Priority);
     }
   }, [initialValue, isVisible]);
   if (!isVisible) return null;
 
   const handleSave = () => {
+    if (priority === "") {
+      alert("Выберите приоритет");
+      return;
+    }
     onSave(value, description, priority);
     setValue("");
     setDescription("");
@@ -45,7 +52,7 @@ export function CallModalWindow({
   };
 
   const handleChange = (event: SelectChangeEvent<string>) => {
-    setPriority(event.target.value);
+    setPriority(event.target.value as Priority); // 💥 Тут кастуем в Priority
   };
 
   const commonStyles = {
